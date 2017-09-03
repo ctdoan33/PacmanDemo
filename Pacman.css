@@ -9,7 +9,7 @@
     padding: 0;
     margin: 0;
 }
-        body{
+body{
     background-color: black;
 }
 div#world{
@@ -18,6 +18,7 @@ div#world{
 div.row div{
     width: 20px;
     height: 20px;
+    margin-bottom: -4px;
     display: inline-block;
 }
 div.brick{
@@ -28,8 +29,23 @@ div.coin{
     background-repeat: no-repeat;
     background-position: center;
 }
+div.gphase{
+    background-color: lightblue;
+}
+div.ltele{
+    background-color: lightblue;
+}
+div.rtele{
+    background-color: lightblue;
+}
+div.dead{
+    background-image: url(dead.gif);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
 div#pacman{
-    background-image: url(pacmanL.gif);
+    background-image: url(pacmanR.gif);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
