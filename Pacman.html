@@ -13,6 +13,7 @@
             <div id="pacman2"></div>
             <div id="score">0</div>
             <div id="ghost"></div>
+            <div id="lives"></div>
         </div>
         <script>
             var world=[
@@ -62,6 +63,7 @@
                 y: 14,
                 last: 0
             }
+            var lives=3;
             function displayWorld(){
                 var output="";
                 for (var i=0; i<world.length; i++){
@@ -111,10 +113,18 @@
                     world[17][14] = 0;
                 }, 15000);
             }
+            function displayLives(){
+                var output="";
+                for(var i=0; i<lives; i++){
+                    output+='<div class="life"></div>';
+                }
+                document.getElementById("lives").innerHTML = output;
+            }
             displayPacman();
             displayPacman2();
             displayGhost();
             displayWorld();
+            displayLives();
             setInterval(newcherry, 30000);
             document.onkeydown = function(e){
                 if (e.keyCode == 37 && world[pacman.y][pacman.x-1] != 2){
@@ -129,7 +139,7 @@
                 } else if (e.keyCode == 40 && world[pacman.y+1][pacman.x] != 2 && world[pacman.y+1][pacman.x] != 4){
                     pacman.y++;
                     document.getElementById("pacman").style.backgroundImage = "url(pacmanD.gif)";
-                } //above iif block is movement for pacman
+                } //above if block is movement for pacman
                 else if (e.keyCode == 65 && world[pacman2.y][pacman2.x-1] != 2){
                     pacman2.x--;
                     document.getElementById("pacman2").style.backgroundImage = "url(pacmanL.gif)";
@@ -143,37 +153,55 @@
                     pacman2.y++;
                     document.getElementById("pacman2").style.backgroundImage = "url(pacmanD.gif)";
                 } //above if block is movement for pacman2
-                if(world[pacman.y][pacman.x] == 1||world[pacman2.y][pacman2.x] == 1){ // eating coins
+                if(world[pacman.y][pacman.x] == 1){ // eating coins
                     world[pacman.y][pacman.x] = 0;
-                    world[pacman2.y][pacman2.x] = 0;
                     score+=10;
+                    var coins=noCoin();
+                    if(coins){
+                        softReset();
+                    }
                     displayScore();
                     displayWorld();
-                } else if (world[pacman.y][pacman.x] == 3||world[pacman2.y][pacman2.x] == 3){ //eating cherries
+                } else if (world[pacman2.y][pacman2.x] == 1){
+                    world[pacman2.y][pacman2.x] = 0;
+                    score+=10;
+                    var coins=noCoin();
+                    if(coins){
+                        softReset();
+                    }
+                    displayScore();
+                    displayWorld();
+                } else if (world[pacman.y][pacman.x] == 3){ //eating cherries
                     world[pacman.y][pacman.x] = 0;
+                    score+=50;
+                    displayScore();
+                    displayWorld();
+                } else if (world[pacman2.y][pacman2.x] == 3){
                     world[pacman2.y][pacman2.x] = 0;
                     score+=50;
                     displayScore();
                     displayWorld();
-                } else if (world[pacman.y][pacman.x] == 5){
+                } else if (world[pacman.y][pacman.x] == 5){ //left teleport
                     pacman.x=26;
                     pacman.y=14;
                 } else if (world[pacman2.y][pacman2.x] == 5){
                     pacman2.x=26;
                     pacman2.y=14;
-                } else if (world[pacman.y][pacman.x] == 6){
+                } else if (world[pacman.y][pacman.x] == 6){ //right teleport
                     pacman.x=1;
                     pacman.y=14;
                 } else if (world[pacman2.y][pacman2.x] == 6){
                     pacman2.x=1;
                     pacman2.y=14;
                 }
-                if(pacman.y == ghost.y && pacman.x == ghost.x){
+                if(pacman.y == ghost.y && pacman.x == ghost.x){ //death
                     world[pacman.y][pacman.x]= 9;
                     pacman.x=14;
                     pacman.y=17;
                     ghost.x=13;
                     ghost.y=14;
+                    lives--;
+                    displayLives();
                     displayWorld();
                     displayGhost();
                 }else if(pacman2.y == ghost.y && pacman2.x == ghost.x){
@@ -182,6 +210,8 @@
                     pacman2.y=17;
                     ghost.x=13;
                     ghost.y=14;
+                    lives--;
+                    displayLives();
                     displayWorld();
                     displayGhost();
                 }
@@ -229,6 +259,8 @@
                     pacman.y=17;
                     ghost.x=13;
                     ghost.y=14;
+                    lives--;
+                    displayLives();
                     displayWorld();
                     displayPacman();
                 }else if(pacman2.y == ghost.y && pacman2.x == ghost.x){
@@ -237,16 +269,80 @@
                     pacman2.y=17;
                     ghost.x=13;
                     ghost.y=14;
+                    lives--;
+                    displayLives();
                     displayWorld();
                     displayPacman();
                 }
                 displayGhost();
             }
-            setInterval(ghostMove, 100);
+            setInterval(ghostMove, 200);
+            function noCoin(){
+                for(var i=0; i<world.length; i++){
+                    for(var j=0; j<world[i].length; j++){
+                        if(world[i][j]==1){
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            function softReset(){
+                world=[
+                [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+                [2,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,2],
+                [2,1,2,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2,1,2],
+                [2,1,2,0,0,2,1,2,0,0,0,2,1,2,2,1,2,0,0,0,2,1,2,0,0,2,1,2],
+                [2,1,2,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2,1,2],
+                [2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],
+                [2,1,2,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,2,2,2,1,2],
+                [2,1,2,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,2,2,2,1,2],
+                [2,1,1,1,1,1,1,2,2,1,1,1,1,2,2,1,1,1,1,2,2,1,1,1,1,1,1,2],
+                [2,2,2,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2,2,2],
+                [0,0,0,0,0,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,0,0,0,0,0],
+                [0,0,0,0,0,2,1,2,2,1,1,1,1,1,1,1,1,1,1,2,2,1,2,0,0,0,0,0],
+                [0,0,0,0,0,2,1,2,2,1,2,2,2,4,4,2,2,2,1,2,2,1,2,0,0,0,0,0],
+                [2,2,2,2,2,2,1,2,2,1,2,0,0,0,0,0,0,2,1,2,2,1,2,2,2,2,2,2],
+                [5,0,0,0,0,0,1,1,1,1,2,0,0,0,0,0,0,2,1,1,1,1,0,0,0,0,0,6],
+                [2,2,2,2,2,2,1,2,2,1,2,0,0,0,0,0,0,2,1,2,2,1,2,2,2,2,2,2],
+                [0,0,0,0,0,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,0,0,0,0,0],
+                [0,0,0,0,0,2,1,2,2,1,1,1,1,0,0,1,1,1,1,2,2,1,2,0,0,0,0,0],
+                [0,0,0,0,0,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,0,0,0,0,0],
+                [2,2,2,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,2,2,2,2,2],
+                [2,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,2],
+                [2,1,2,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2,1,2],
+                [2,1,2,2,2,2,1,2,2,2,2,2,1,2,2,1,2,2,2,2,2,1,2,2,2,2,1,2],
+                [2,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,2],
+                [2,2,2,1,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,2,1,2,2,2],
+                [2,2,2,1,2,2,1,2,2,1,2,2,2,2,2,2,2,2,1,2,2,1,2,2,1,2,2,2],
+                [2,1,1,1,1,1,1,2,2,1,1,1,1,2,2,1,1,1,1,2,2,1,1,1,1,1,1,2],
+                [2,1,2,2,2,2,2,2,2,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2],
+                [2,1,2,2,2,2,2,2,2,2,2,2,1,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2],
+                [2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2],
+                [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+                ];
+                pacman = {
+                    x: 14,
+                    y: 17
+                }
+                pacman2 = {
+                    x: 13,
+                    y: 17
+                }
+                ghost = {
+                    x: 13,
+                    y: 14,
+                    last: 0
+                }
+            }
+            function hardReset(){
+                softReset();
+                score=0;
+                lives=3;
+            }
             //features to implement:
             //more ghosts
-            //lives
-            //world reset on all coins taken
+            //game over notification and reset
             //music and sound
             //power pellets
         </script>
